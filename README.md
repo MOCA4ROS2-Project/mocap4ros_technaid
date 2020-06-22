@@ -2,9 +2,9 @@
 
 This repository contains the necessary code to work with the Tech MCS IMUs.
 
-# Prerequisites
+**To use this project you have to follow the next guide.**
 
-## Guide
+## Guide (Prerequisites)
 
 - Open `TechMCS_ROS2.sln` on Visual Studio 2017.
 
