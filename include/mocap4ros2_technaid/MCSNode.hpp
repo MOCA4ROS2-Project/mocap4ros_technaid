@@ -20,6 +20,7 @@
 #include "mcs_technaid/MCS.hpp"
 
 #include "sensor_msgs/msg/imu.hpp"
+#include "mocap_msgs/msg/imus_info.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
@@ -46,7 +47,10 @@ private:
   void callback_imu_data(const mcs_technaid::QuatPhyFrame* orien_phy_frame);
 
   mcs_technaid::MCS mcs_;
+  mcs_technaid::MCSInfo mcs_info_;
+
   rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
+  rclcpp_lifecycle::LifecyclePublisher<mocap_msgs::msg::ImusInfo>::SharedPtr imus_info_pub_;
 };
 
 }  // mcs_technaid

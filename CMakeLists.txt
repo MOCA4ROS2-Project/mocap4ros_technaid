@@ -9,6 +9,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(mocap_msgs REQUIRED)
 find_package(mcs_technaid REQUIRED)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -19,6 +20,7 @@ set(dependencies
     rclcpp_action
     rclcpp_lifecycle
     sensor_msgs
+    mocap_msgs
 )
 
 include_directories(include ${mcs_technaid_INCLUDE_DIRS})

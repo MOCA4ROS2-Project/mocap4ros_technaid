@@ -18,6 +18,7 @@
 #include "mocap4ros2_technaid/MCSNode.hpp"
 
 #include "sensor_msgs/msg/imu.hpp"
+#include "mocap_msgs/msg/imus_info.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
@@ -28,7 +29,9 @@ namespace mocap_technaid
 MCSNode::MCSNode(const std::string & port)
 : LifecycleNode("mocap_technaid"), mcs_(port)
 {
-  imu_pub_ = create_publisher<sensor_msgs::msg::Imu>("mcs_imu", rclcpp::QoS(1000));
+  imu_pub_ = create_publisher<sensor_msgs::msg::Imu>("mopcap_imu_data", rclcpp::QoS(1000));
+  imus_info_pub_ = create_publisher<mocap_msgs::msg::ImusInfo>(
+    "mocap_imu_info", rclcpp::QoS(10).transient_local().reliable());
 }
 
 using CallbackReturnT =
@@ -38,8 +41,8 @@ CallbackReturnT
 MCSNode::on_configure(const rclcpp_lifecycle::State & state)
 {
   if (mcs_.connect()) {
-    auto info = mcs_.get_imu_info();
-    mcs_technaid::print_info(info);
+    mcs_info_ = mcs_.get_imu_info();
+    mcs_technaid::print_info(mcs_info_);
     return CallbackReturnT::SUCCESS;
   } else {
     return CallbackReturnT::FAILURE;
@@ -50,7 +53,19 @@ CallbackReturnT
 MCSNode::on_activate(const rclcpp_lifecycle::State & state)
 {
   mcs_.start_capture(std::bind(&MCSNode::callback_imu_data, this, std::placeholders::_1));
+
   imu_pub_->on_activate();
+  imus_info_pub_->on_activate();
+
+  mocap_msgs::msg::ImusInfo info_msg;
+  for (const auto & sensor : mcs_info_.sensor_ids) {
+    info_msg.sensor_ids.push_back(std::to_string(sensor));
+  }
+  info_msg.battery_level = mcs_info_.battery_level;
+  info_msg.temperature = mcs_info_.temperature;
+
+  imus_info_pub_->publish(info_msg);
+
   return CallbackReturnT::SUCCESS;
 }
 
@@ -80,7 +95,7 @@ MCSNode::callback_imu_data(const mcs_technaid::QuatPhyFrame* imu_data)
 {
   for (int i = 0; i < imu_data->sensor_readings.size(); i++) {
     sensor_msgs::msg::Imu imu_msg;
-    imu_msg.header.frame_id = "imu_" + std::to_string(i);
+    imu_msg.header.frame_id = "imu_" + std::to_string(mcs_info_.sensor_ids[i]);
     imu_msg.header.stamp = now();
     imu_msg.orientation.w = imu_data->sensor_readings[i].data[0];
     imu_msg.orientation.x = imu_data->sensor_readings[i].data[1];
