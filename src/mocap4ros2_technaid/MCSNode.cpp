@@ -27,7 +27,7 @@ namespace mocap_technaid
 {
 
 MCSNode::MCSNode(const std::string & port)
-: LifecycleNode("mocap_technaid"), mcs_(port)
+: ControlledLifecycleNode("mocap_technaid"), mcs_(port)
 {
   imu_pub_ = create_publisher<sensor_msgs::msg::Imu>("mopcap_imu_data", rclcpp::QoS(1000));
   imus_info_pub_ = create_publisher<mocap_msgs::msg::ImusInfo>(
@@ -43,7 +43,17 @@ MCSNode::on_configure(const rclcpp_lifecycle::State & state)
   if (mcs_.connect()) {
     mcs_info_ = mcs_.get_imu_info();
     mcs_technaid::print_info(mcs_info_);
-    return CallbackReturnT::SUCCESS;
+
+    imu_individual_pubs_.clear();
+    for (int i = 0; i < mcs_info_.sensor_ids.size(); i++) {
+      std::string id = "imu_" + std::to_string(mcs_info_.sensor_ids[i]);
+      imu_individual_pubs_.push_back(
+        create_publisher<sensor_msgs::msg::Imu>(
+          "mopcap_imu/" + id,
+          rclcpp::QoS(1000)));
+    }
+
+    return ControlledLifecycleNode::on_configure(state);
   } else {
     return CallbackReturnT::FAILURE;
   }
@@ -57,41 +67,46 @@ MCSNode::on_activate(const rclcpp_lifecycle::State & state)
   imu_pub_->on_activate();
   imus_info_pub_->on_activate();
 
+  for (int i = 0; i < mcs_info_.sensor_ids.size(); i++) {
+    imu_individual_pubs_[i]->on_activate();
+  }
+
   mocap_msgs::msg::ImusInfo info_msg;
   for (const auto & sensor : mcs_info_.sensor_ids) {
     info_msg.sensor_ids.push_back(std::to_string(sensor));
   }
+
   info_msg.battery_level = mcs_info_.battery_level;
   info_msg.temperature = mcs_info_.temperature;
 
   imus_info_pub_->publish(info_msg);
 
-  return CallbackReturnT::SUCCESS;
+  return ControlledLifecycleNode::on_activate(state);
 }
 
 CallbackReturnT
 MCSNode::on_deactivate(const rclcpp_lifecycle::State & state)
 {
   mcs_.stop_capture();
-  return CallbackReturnT::SUCCESS;
+  return ControlledLifecycleNode::on_deactivate(state);
 }
 
 CallbackReturnT
 MCSNode::on_cleanup(const rclcpp_lifecycle::State & state)
 {
   mcs_.disconnect();
-  return CallbackReturnT::SUCCESS;
+  return ControlledLifecycleNode::on_cleanup(state);
 }
 
 CallbackReturnT
 MCSNode::on_shutdown(const rclcpp_lifecycle::State & state)
 {
   mcs_.disconnect();
-  return CallbackReturnT::SUCCESS;
+  return ControlledLifecycleNode::on_shutdown(state);
 }
 
 void
-MCSNode::callback_imu_data(const mcs_technaid::QuatPhyFrame* imu_data)
+MCSNode::callback_imu_data(const mcs_technaid::QuatPhyFrame * imu_data)
 {
   for (int i = 0; i < imu_data->sensor_readings.size(); i++) {
     sensor_msgs::msg::Imu imu_msg;
@@ -107,7 +122,14 @@ MCSNode::callback_imu_data(const mcs_technaid::QuatPhyFrame* imu_data)
     imu_msg.angular_velocity.x = imu_data->sensor_readings[i].data[7];
     imu_msg.angular_velocity.y = imu_data->sensor_readings[i].data[8];
     imu_msg.angular_velocity.z = imu_data->sensor_readings[i].data[9];
-    imu_pub_->publish(imu_msg);
+
+    if (imu_pub_->get_subscription_count() > 0) {
+      imu_pub_->publish(imu_msg);
+    }
+
+    if (imu_individual_pubs_[i]->get_subscription_count() > 0) {
+      imu_individual_pubs_[i]->publish(imu_msg);
+    }
   }
 }
 
@@ -123,5 +145,5 @@ MCSNode::device_cleanup()
   }
 }
 
-}  // mocap_technaid
+}  // namespace mocap_technaid
 

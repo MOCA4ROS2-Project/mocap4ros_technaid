@@ -16,6 +16,7 @@
 #define MOCAP4ROS2_TECHNAID__MCSNODE_HPP__
 
 #include <string>
+#include <vector>
 
 #include "mcs_technaid/MCS.hpp"
 
@@ -25,13 +26,15 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
+#include "mocap_control/ControlledLifecycleNode.hpp"
+
 namespace mocap_technaid
 {
 
-class MCSNode : public rclcpp_lifecycle::LifecycleNode
+class MCSNode : public mocap_control::ControlledLifecycleNode
 {
 public:
-  MCSNode(const std::string & port = "automatic");
+  explicit MCSNode(const std::string & port = "automatic");
 
   using CallbackReturnT =
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
@@ -44,16 +47,18 @@ public:
 
   void device_cleanup();
 private:
-  void callback_imu_data(const mcs_technaid::QuatPhyFrame* orien_phy_frame);
+  void callback_imu_data(const mcs_technaid::QuatPhyFrame * orien_phy_frame);
 
   mcs_technaid::MCS mcs_;
   mcs_technaid::MCSInfo mcs_info_;
 
   rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
+  std::vector<rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::Imu>::SharedPtr>
+  imu_individual_pubs_;
   rclcpp_lifecycle::LifecyclePublisher<mocap_msgs::msg::ImusInfo>::SharedPtr imus_info_pub_;
 };
 
-}  // mcs_technaid
+}  // namespace mocap_technaid
 
 
 #endif  // MOCAP4ROS2_TECHNAID__MCSNODE_HPP__
