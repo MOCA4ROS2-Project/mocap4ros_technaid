@@ -8,8 +8,9 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(sensor_msgs REQUIRED)
+find_package(mocap_control REQUIRED)
 find_package(mocap_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(mcs_technaid REQUIRED)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -19,13 +20,14 @@ set(dependencies
     rclcpp
     rclcpp_action
     rclcpp_lifecycle
-    sensor_msgs
+    mocap_control
     mocap_msgs
+    sensor_msgs
 )
 
 include_directories(include ${mcs_technaid_INCLUDE_DIRS})
 
-add_library(${PROJECT_NAME} STATIC 
+add_library(${PROJECT_NAME} STATIC
   src/mocap4ros2_technaid/MCSNode.cpp
 )
 ament_target_dependencies(${PROJECT_NAME} ${dependencies})

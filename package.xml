@@ -16,6 +16,7 @@
   <depend>rclcpp_action</depend>
   <depend>rclcpp_lifecycle</depend>
   <depend>sensor_msgs</depend>
+  <depend>mocap_control</depend>
   <depend>mocap_msgs</depend>
   <depend>mcs_technaid</depend>
  
