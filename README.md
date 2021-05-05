@@ -6,13 +6,14 @@ This repository contains the MOCAP4ROS2 driver for the Technaid Motion Capture S
 
 This package depends on the [MCS Technaid Driver](https://github.com/MOCAP4ROS2-Project/MCS-Technaid/releases/download/0.0.1/mcs-technaid-0.0.1.tar.gz). Install it first, or include it in the workspace and build
 
-
+```
 git clone https://github.com/ament/ament_cmake.git
 git clone https://github.com/ament/ament_package.git
 git clone https://github.com/ament/ament_lint.git
 git clone -b noetic https://github.com/MOCAP4ROS2-Project/mocap4ros2_technaid.git
 git clone -b noetic https://github.com/MOCAP4ROS2-Project/mocap_msgs.git
 git clone -b noteic https://github.com/MOCAP4ROS2-Project/mocap4ros2_core.git
+```
 
 ## Building
 
