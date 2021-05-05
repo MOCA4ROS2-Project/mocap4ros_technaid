@@ -15,19 +15,20 @@
 #include <memory>
 
 #include "mocap4ros2_technaid/MCSNode.hpp"
-#include "rclcpp/rclcpp.hpp"
+
+#include "mocap_control/ControlledLifecycleNode.hpp"
+#include "ros/ros.h"
 
 int main(int argc, char ** argv)
 {
-  rclcpp::init(argc, argv);
-  auto node = std::make_shared<mocap_technaid::MCSNode>();
-  node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+  ros::init(argc, argv, "mocap_technaid");
+  ros::NodeHandle n;
 
-  rclcpp::spin(node->get_node_base_interface());
+  mocap_technaid::MCSNode mcs_node;
+  mcs_node.trigger_transition(mocap_control::CONFIGURE);
+  ros::spin();
 
-  rclcpp::shutdown();
-
-  node->device_cleanup();
+  mcs_node.device_cleanup();
 
   return 0;
 }
