@@ -49,7 +49,7 @@ MCSNode::on_configure(const rclcpp_lifecycle::State & state)
       std::string id = "imu_" + std::to_string(mcs_info_.sensor_ids[i]);
       imu_individual_pubs_.push_back(
         create_publisher<sensor_msgs::msg::Imu>(
-          "mopcap_imu/" + id,
+          "mopcap_imu_data/" + id,
           rclcpp::QoS(1000)));
     }
 
