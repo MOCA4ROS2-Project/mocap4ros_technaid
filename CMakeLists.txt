@@ -8,7 +8,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(mocap_control REQUIRED)
+find_package(device_control REQUIRED)
 find_package(mocap_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(mcs_technaid REQUIRED)
@@ -20,7 +20,7 @@ set(dependencies
     rclcpp
     rclcpp_action
     rclcpp_lifecycle
-    mocap_control
+    device_control
     mocap_msgs
     sensor_msgs
 )

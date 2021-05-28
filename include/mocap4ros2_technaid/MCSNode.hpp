@@ -26,12 +26,12 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-#include "mocap_control/ControlledLifecycleNode.hpp"
+#include "device_control/ControlledLifecycleNode.hpp"
 
 namespace mocap_technaid
 {
 
-class MCSNode : public mocap_control::ControlledLifecycleNode
+class MCSNode : public device_control::ControlledLifecycleNode
 {
 public:
   explicit MCSNode(const std::string & port = "automatic");
